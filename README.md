@@ -51,6 +51,10 @@ SF3500_TC=/path/to/toolchain/host ./build_sf3500.sh     # runtime, compiler, gam
 ./package.sh                                            # assembles package/
 ```
 
+The build is reproducible: the runtime and the bytecode come out byte for byte the same wherever the
+repository is checked out (the compiler is given relative source paths, and the date stored in the bytecode
+is fixed by `SOURCE_DATE_EPOCH`, default 1700000000).
+
 `build_sf3500.sh` explains its other settings (`QEMU`, `PY`, `FONT_DIR`, `OUT`) in its header. The
 SDL2 and SDL2_mixer sources are patched on the fly (`runtime/sf3500/*.patch`); nothing of theirs is
 copied into this repository.

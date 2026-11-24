@@ -38,7 +38,7 @@
  *  VERSION
  */
 
-#define BGDI_VERSION     "BGDI " VERSION " (" __DATE__ " " __TIME__ ")"
+#define BGDI_VERSION     "BGDI " VERSION " (SF3500 Altitude)"      /* no build date: the binary must not depend on when it was built */
 
 /*
  *  HEADER FILES

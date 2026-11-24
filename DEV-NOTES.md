@@ -9,6 +9,11 @@ tools/render-launcher.sh                                # every launcher screen 
 tools/bot-run.sh hard 1 100                             # one headless 2P Battle run with the computer opponent
 ```
 
+Reproducibility: `tools/relpath-cc.sh` (a compiler launcher) passes source files by relative path so the paths
+the runtime embeds do not depend on the checkout location (the toolchain's GCC 6.3 has no `-ffile-prefix-map`);
+the version banners carry no build date; and `bgdc` honours `SOURCE_DATE_EPOCH` for the date it stores in the
+bytecode (the build script sets a constant). Building from two differently named checkouts gives identical files.
+
 `QEMU="flatpak-spawn --host qemu-mipsel-static"` lets the scripts run mipsel programs from inside a
 sandbox that has no qemu. Test runs are deterministic: the same build gives the same frame counts and
 scores, so a change that should not alter behaviour can be checked by comparing results.

@@ -36,6 +36,7 @@ STRIP="$SF3500_TC/bin/mips-mti-linux-gnu-strip"
 mkdir -p "$OUT"
 OUT="$(cd "$OUT" && pwd)"
 
+
 die() { echo "build_sf3500.sh: $*" >&2; exit 1; }
 [ -x "$SF3500_TC/bin/mips-mti-linux-gnu-gcc" ] || die "no mips-mti-linux-gnu-gcc in $SF3500_TC/bin"
 
@@ -43,7 +44,7 @@ die() { echo "build_sf3500.sh: $*" >&2; exit 1; }
 run_mips() {
     local dir="$1"; shift
     case "$QEMU" in
-        flatpak-spawn*) ( cd "$dir" && flatpak-spawn --host --directory="$dir" ${QEMU#flatpak-spawn --host} -L "$SYSROOT" "$@" ) ;;
+        flatpak-spawn*) ( cd "$dir" && flatpak-spawn --host --directory="$dir" --env=SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-}" ${QEMU#flatpak-spawn --host} -L "$SYSROOT" "$@" ) ;;
         *)              ( cd "$dir" && $QEMU -L "$SYSROOT" "$@" ) ;;
     esac
 }
@@ -104,12 +105,18 @@ if [ ! -f "$MIX/lib/libSDL2_mixer.a" ]; then
 fi
 
 # 4. The runtime. The binary's name must start with "bgdi": the engine uses that to read the game from a separate file.
+# The compiler gets the source files by relative path (tools/relpath-cc.sh), so the paths the runtime embeds (in
+# assert messages) are the same wherever the repository is checked out: the same sources give the same bytes.
+export SRC_ROOT="$HERE"
+# The compiler stores a compile date and time in the bytecode; a fixed one keeps the bytecode reproducible.
+export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-1700000000}"
 echo "== runtime"
 mkdir -p "$OUT/rt-build"
 (cd "$OUT/rt-build" && cmake "$RUNTIME" -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN" -DCMAKE_MODULE_PATH="$RUNTIME/sf3500/cmake" \
     -DCMAKE_FIND_PACKAGE_PREFER_CONFIG=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     -DSDL2_INCLUDE_DIR="$SDL/include/SDL2" -DSDL2_LIBRARY="$SDL/lib/libSDL2.a" \
     -DSDL2_MIXER_INCLUDE_DIR="$MIX/include/SDL2" -DSDL2_MIXER_LIBRARY="$MIX/lib/libSDL2_mixer.a" \
+    -DCMAKE_C_COMPILER_LAUNCHER="$HERE/tools/relpath-cc.sh" \
     -DCMAKE_C_STANDARD_LIBRARIES="$XMP/lib/libxmp-lite.a" > cmake.log 2>&1 && make -j"$JOBS" > make.log 2>&1) \
     || die "runtime build failed, see $OUT/rt-build/*.log"
 "$STRIP" -o "$OUT/bgdi.mipsel" "$OUT/rt-build/bgdi"

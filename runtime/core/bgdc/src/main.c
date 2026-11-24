@@ -213,8 +213,17 @@ int main( int argc, char *argv[] )
     add_simple_define( "COMPILER_VERSION", tmp_version );
     add_simple_define( "__VERSION__", tmp_version );
 
-    curtime = time( NULL ); /* Get the current time. */
-    loctime = localtime( &curtime ); /* Convert it to local time representation. */
+    /* SOURCE_DATE_EPOCH makes the stored __DATE__ / __TIME__ reproducible (compile time in UTC) */
+    if ( getenv( "SOURCE_DATE_EPOCH" ) )
+    {
+        curtime = ( time_t ) atol( getenv( "SOURCE_DATE_EPOCH" ) );
+        loctime = gmtime( &curtime );
+    }
+    else
+    {
+        curtime = time( NULL ); /* Get the current time. */
+        loctime = localtime( &curtime ); /* Convert it to local time representation. */
+    }
 
     strftime( timebuff, sizeof( timebuff ), "%Y/%m/%d", loctime );
     value = string_new( timebuff );
