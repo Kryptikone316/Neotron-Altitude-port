@@ -11,8 +11,8 @@ cache = {k: ImageFont.truetype(f"{fdir}/{v[0]}", v[1]) for k, v in FONTS.items()
 LEFT, RIGHT, BOTTOM = 34, 598, 438     # inside the body panel (20..620 less its margin)
 bad = 0
 MAIN_LINES = {"Altitude by Daniel Imerion Eriksson", "Up/Down: choose     A: confirm"}
-MAIN_LO, MAIN_HI = 118, 522      # inside the main screen bottom panel (110..530)
-extra = [(586, 95, 2, "<  Original shape  >", "f_y"), (586, 95, 2, "<  Fill screen  >", "f_y"), (586, 183, 2, "<  Normal  >", "f_y"), (586, 183, 2, "<  Hard  >", "f_y"), (586, 227, 2, "Press A to confirm", "f_y")]
+MAIN_LO, MAIN_HI = 108, 532      # inside the main screen bottom panel (100..540)
+extra = [(586, 95, 2, "<  Original shape  >", "f_y"), (586, 95, 2, "<  Fill screen  >", "f_y"), (586, 183, 2, "<  Normal  >", "f_y"), (586, 183, 2, "<  Hard  >", "f_y"), (586, 227, 2, "Press A to confirm", "f_y"), (320, 402, 1, "Yours: 123,456   Imerion: 33,781", "f_r")]
 rows = [(int(m[0]), int(m[1]), int(m[2]), m[3], m[4]) for m in
         re.findall(r'label\((\d+),\s*(\d+),\s*(\d),\s*"([^"]*)",\s*(f_\w+)\)', open(prg).read())] + extra
 for x, y, al, text, fn in rows:
@@ -20,7 +20,7 @@ for x, y, al, text, fn in rows:
     left = x if al == 0 else (x - w / 2 if al == 1 else x - w)
     right = left + w
     lo, hi = (LEFT, RIGHT)
-    if text in MAIN_LINES or text.startswith("High score: "): lo, hi = MAIN_LO, MAIN_HI
+    if text in MAIN_LINES or text.startswith("Yours: "): lo, hi = MAIN_LO, MAIN_HI
     flag = ""
     if left < lo or right > hi: flag = f"  <-- OUT ({left:.0f}..{right:.0f}, allowed {lo}..{hi})"
     if y > 414 and fn == "f_w": flag += "  <-- LOW"

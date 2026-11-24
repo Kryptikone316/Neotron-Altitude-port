@@ -40,7 +40,7 @@ Player 2's keys are not mapped: the handheld has one set of controls. Use the co
     stretches it to the whole panel.
   * *Menu music*: the launcher's music on or off. The game has its own sound setting.
   * *Computer opponent*: Off, Easy, Normal or Hard (see below).
-  * *Reset high scores*: clears your best score and puts the game's high score back to the creator's (see
+  * *Reset high scores*: sets your best score back to 0 and puts the game's high score back to Imerion's (see
     below). It asks for a second press of A to confirm.
   * Settings are saved in `options.cfg` and apply the next time the game starts.
 * **How to Play** is a five-page guide: the mission, controls, power-ups, game modes, and tips.
@@ -49,11 +49,11 @@ Player 2's keys are not mapped: the handheld has one set of controls. Use the co
 ## High scores
 
 The game remembers one high score, and it ships with the author's own (33781), which is very hard to beat.
-So the launcher keeps two numbers and shows them on its first screen: **Creator** (his, fixed) and **You** (your
-best score in any mode, kept by the port). Your best is recorded even when it is below his, so you can watch
+So the launcher keeps two numbers and shows them on its first screen: **Yours** (your best score in any mode,
+kept by the port) and **Imerion** (his, fixed), for example `Yours: 2,981   Imerion: 33,781`. Your best is recorded even when it is below his, so you can watch
 it climb; when you pass him, the game itself starts showing your score as its high score, as it always did.
 
-*Options > Reset high scores* clears your best and puts the game's high score back to the creator's, so there is
+*Options > Reset high scores* sets Yours back to 0 and puts the game's high score back to Imerion's, so there is
 a score to beat again. Only Player 1's score counts as yours; the computer opponent's never does.
 
 ## The computer opponent

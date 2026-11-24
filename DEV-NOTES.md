@@ -83,7 +83,7 @@ beats it, so a good computer-opponent run could become the game's high score. It
   is pending, and on every exit path. Best over time, not at the end of a run: the game resets the score at
   each new life in Arcade, and the final one may be lower than an earlier life's.
 * The launcher shows `score-creator.dat` (a shipped, untouched copy of the author's `score.dat`) and
-  `score-player.dat` on its first screen. *Reset high scores* (a two-press action) saves the creator's score into
+  `score-player.dat` on its first screen as `Yours: 2,981   Imerion: 33,781`. *Reset high scores* (a two-press action) saves Imerion's score into
   `score.dat` and zero into `score-player.dat`. The launcher's `selftest` argument exercises this and checks that
   `score.dat` comes back byte-identical.
 

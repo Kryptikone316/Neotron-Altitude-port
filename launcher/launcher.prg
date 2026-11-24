@@ -47,7 +47,7 @@ global
     int opt_fill  = 0;          // 0 = original 4:3 shape, 1 = fill the screen
     int opt_music = 1;
     int opt_bot   = 0;          // computer opponent: 0 off, 1 easy, 2 normal, 3 hard
-    int creator_best = 0;       // the author's high score, shipped in score-creator.dat
+    int creator_best = 0;       // Imerion's (the author's) high score, shipped in score-creator.dat
     int player_best = 0;        // the player's own best, kept by the runtime in score-player.dat
     int reset_stage = 0;        // Options: 0 idle, 1 waiting for the confirming press, 2 done
     int cur_screen = 0;
@@ -182,7 +182,7 @@ begin
     end
 end
 
-// The author's score goes back into the game's own high-score file and the player's best is cleared.
+// Imerion's score goes back into the game's own high-score file and the player's best is set to 0.
 function reset_scores()
 begin
     save("score.dat", creator_best);
@@ -332,6 +332,24 @@ begin
     panel(20, 82, 620, 440);
 end
 
+// 33781 -> "33,781"
+function string commas(int n)
+private
+    string t;
+    string r;
+    int i;
+    int l;
+begin
+    t = itoa(n);
+    l = len(t);
+    r = "";
+    for (i = 0; i < l; i++)
+        if (i > 0 and (l - i) % 3 == 0) r = r + ","; end
+        r = r + substr(t, i, 1);
+    end
+    return r;
+end
+
 // ---------------------------------------------------------------- screens
 
 function draw_screen()
@@ -361,9 +379,8 @@ begin
             label(320, cy - 22, 1, menu_item[i], f_menu_w);
         end
     end
-    panel(110, 404, 530, 474);
-    if (player_best > 0) v = itoa(player_best); else v = "-"; end
-    label(320, 402, 1, "Creator: " + itoa(creator_best) + "     You: " + v, f_r);
+    panel(100, 404, 540, 474);
+    label(320, 402, 1, "Yours: " + commas(player_best) + "   Imerion: " + commas(creator_best), f_r);
     label(320, 428, 1, "Altitude by Daniel Imerion Eriksson", f_g);
     label(320, 449, 1, "Up/Down: choose     A: confirm", f_g);
 end
@@ -417,9 +434,9 @@ begin
         label(40, 405, 0, "idle. Applies when the game starts.", f_g);
     end
     if (sel == 3)
-        label(40, 330, 0, "Clears your best score and puts the game's high", f_g);
-        label(40, 355, 0, "score back to the creator's, so there is a score", f_g);
-        label(40, 380, 0, "to beat again. This cannot be undone.", f_g);
+        label(40, 330, 0, "Sets your best score to 0 and puts the game's", f_g);
+        label(40, 355, 0, "own high score back to Imerion's, so there is a", f_g);
+        label(40, 380, 0, "score to beat again. This cannot be undone.", f_g);
     end
     footer("Up/Down: choose     Left/Right: change     B: back");
 end
@@ -516,7 +533,7 @@ begin
     label(64, 344, 0, "computer pilot as Player 2.", f_w);
 
     label(40, 382, 0, "High score", f_y);
-    label(64, 408, 0, "The menu shows yours and the creator's.", f_w);
+    label(64, 408, 0, "The menu shows yours and Imerion's.", f_w);
 end
 
 function help_tips()
