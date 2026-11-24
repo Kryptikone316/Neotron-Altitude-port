@@ -31,8 +31,9 @@ alter the game's files:
 
 **Pause:** press Start while you are flying. The game stands still, the music and sounds hold, and the last
 frame stays on screen with PAUSED over it; press Start again to carry on from the same moment. It works only in
-flight (not on the menus, or on a level-complete or game-over banner, where Start confirms as before), and
-Select + Start still quits from the pause screen.
+flight, while your own ship is flying: not on the menus, not on a level-complete or game-over banner (Start
+confirms there as before), and not after your ship has crashed in a two-player match while the other pilot flies
+on. Select + Start still quits from the pause screen.
 
 Player 2's keys are not mapped: the handheld has one set of controls. Use the computer opponent
 (below) for the two-player modes.
@@ -56,8 +57,8 @@ Player 2's keys are not mapped: the handheld has one set of controls. Use the co
 
 The game remembers one high score, and it ships with the author's own (33781), which is very hard to beat.
 So the launcher keeps two numbers and shows them on its first screen: **Yours** (your best score in any mode,
-kept by the port) and **Imerion** (his, fixed), for example `Yours: 2,981   Imerion: 33,781`. Your best is recorded even when it is below his, so you can watch
-it climb; when you pass him, the game itself starts showing your score as its high score, as it always did.
+kept by the port) and **Imerion** (his, fixed), for example `Yours: 2,981   Imerion: 33,781`. Your best is
+recorded even when it is below his, so you can watch it climb; when you pass him, the game itself starts showing your score as its high score, as it always did.
 
 *Options > Reset high scores* sets Yours back to 0 and puts the game's high score back to Imerion's, so there is
 a score to beat again. Only Player 1's score counts as yours; the computer opponent's never does.
@@ -86,7 +87,7 @@ Everything in the game folder is the author's original, byte for byte, except th
 | File | What it is |
 |---|---|
 | `altitude.dcb` | The author's `altitude.prg`, compiled for BennuGD (the original compiled file is for Fenix, which does not run here). The script text is unchanged; see `source/` |
-| `bgdi.mipsel` | The runtime: BennuGD with SF3500 display, audio and input, tracker-music playback, the computer opponent, and the tracker of your best score |
+| `bgdi.mipsel` | The runtime: BennuGD with SF3500 display, audio and input, tracker-music playback, the computer opponent, the pause, and the tracker of your best score |
 | `launcher.dcb`, `launcher.prg`, `ui/` | The launcher (its source and fonts) |
 | `run.sh`, `boxart.png` | The start script and the box art |
 | `options.cfg`, `score-player.dat`, `log.txt` | Created when you run it: your settings, your best score, and a log of the last session |
@@ -116,8 +117,9 @@ and, when the computer opponent is on, its timing and a one-line result for each
 * **BennuGD / Fenix** runtime: zlib licence, copyright SplinterGU and the Fenix team, via the Vita SoRR
   port by Sarcastic Cat. `bgdi.mipsel` is a **modified version** of that software, not the original:
   it adds the SF3500 display, audio and input support, a rotation-aware 16-bit video path for the
-  game's 8-bit mode, tracker-music playback, and the computer opponent.
+  game's 8-bit mode, tracker-music playback, the computer opponent, the pause, and the tracker of your best
+  score.
 * **SDL2**, **SDL2_mixer**, **zlib** (zlib licence), **libpng** (libpng licence), **libxmp-lite**
   (MIT, for the tracker music), **DejaVu fonts** (Bitstream Vera licence, for the launcher text). The
   licence texts are in `licenses/`.
-* The launcher and the computer opponent were written for this port (Unlicense). `licenses/CREDITS.txt` says who wrote what.
+* The launcher, the computer opponent, the pause and the score tracker were written for this port (Unlicense). `licenses/CREDITS.txt` says who wrote what.

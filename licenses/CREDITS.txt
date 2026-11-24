@@ -2,7 +2,7 @@ Altitude
   Original game (c) Daniel "Imerion" Eriksson (NeoTron Games). Free to share, content unchanged, not for sale
   (game/Readme.txt).
 
-Altitude for the SF3500 (launcher, computer opponent, scripts, packaging)
+Altitude for the SF3500 (launcher, computer opponent, pause, score tracker, scripts, packaging)
   (c) 2026 AthruZ (Kryptikone316)   Unlicense (LICENSE)
 
 Runtime

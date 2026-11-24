@@ -11,7 +11,7 @@ This repository is the source of the port for the Datafrog SF3500 (MIPS32r2, no 
 are the author's, unchanged, and are included in `game/` because his licence allows free
 redistribution of the unmodified game.
 
-The player's guide (controls, launcher, options, the computer opponent) is in
+The player's guide (controls, launcher, options, high scores, pause, the computer opponent) is in
 [package-src/README.md](package-src/README.md), which is also the README inside the installed folder.
 
 ## What the port adds
@@ -66,6 +66,7 @@ copied into this repository.
 |---|---|
 | `runtime/` | the modified BennuGD source (zlib licence), the SDL2 and SDL2_mixer patches, and the SF3500 display, audio and input layer in `runtime/src/sf3500/` |
 | `runtime/modules/mod_grproc/sf3500_bot.inc` | the computer opponent |
+| `runtime/modules/mod_grproc/sf3500_pause.inc`, `sf3500_score.inc` | the test for "a ship is flying" (pause), and the tracker of the player's best score; the pause loop itself is in `runtime/modules/libsdlhandler/libsdlhandler.c` |
 | `launcher/` | the launcher script, the font generator, and the check that every text line fits its panel |
 | `tools/` | the script that prepares the game for BennuGD, the compiler build, and test scripts that run the game headless |
 | `game/` | the author's original files, byte for byte |
@@ -92,5 +93,5 @@ inserted. His script is never edited; `game/altitude.prg` is byte-identical to t
   launcher's text uses glyphs from the DejaVu fonts. The SF3500 display, audio and gamepad layer is
   derived from TreeFrogUI's pico286 SF3000 patch and picoarch's SF3000 code. Texts are in `licenses/`;
   who wrote what is in `licenses/CREDITS.txt`.
-* **What was written for this port** (the launcher, the computer opponent, the scripts and packaging)
+* **What was written for this port** (the launcher, the computer opponent, the pause, the score tracker, the scripts and packaging)
   is released under the Unlicense, see [LICENSE](LICENSE).
