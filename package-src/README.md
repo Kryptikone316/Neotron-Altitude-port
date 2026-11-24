@@ -77,10 +77,12 @@ Unchanged originals: `altitude.fpg` (graphics), `alt1.mod`, `alt2.mod` (music), 
 `score.dat` (starts with the author's own high score, then keeps yours) and `Readme-altitude.txt`
 (the author's readme).
 
-`source/` holds the author's `altitude.prg` unmodified, and `make-bennu-prg.sh`, the only step between
-it and `altitude.dcb`. BennuGD requires `import` lines after the first line of a script, which Fenix
-did not, so the script generates a compile copy with those lines inserted. The shipped `altitude.prg`
-is never edited. `make-fonts.py` generates the launcher's fonts from DejaVu Sans.
+`source/` holds the source: the author's `altitude.prg` unmodified, and `make-bennu-prg.sh`, the only step
+between it and `altitude.dcb`. BennuGD requires `import` lines after the first line of a script, which Fenix did
+not, so the script generates a compile copy with those lines inserted. The shipped `altitude.prg` is never
+edited. (On the card this folder has just those files; in the Ports Collection it is the port's whole source
+repository, where they are `game/altitude.prg` and `tools/make-bennu-prg.sh`.) `make-fonts.py` generates the
+launcher's fonts from DejaVu Sans.
 
 ## If something goes wrong
 
