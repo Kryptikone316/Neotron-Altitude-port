@@ -40,9 +40,21 @@ Player 2's keys are not mapped: the handheld has one set of controls. Use the co
     stretches it to the whole panel.
   * *Menu music*: the launcher's music on or off. The game has its own sound setting.
   * *Computer opponent*: Off, Easy, Normal or Hard (see below).
+  * *Reset high scores*: clears your best score and puts the game's high score back to the creator's (see
+    below). It asks for a second press of A to confirm.
   * Settings are saved in `options.cfg` and apply the next time the game starts.
 * **How to Play** is a five-page guide: the mission, controls, power-ups, game modes, and tips.
 * **Exit** returns to the front-end.
+
+## High scores
+
+The game remembers one high score, and it ships with the author's own (33781), which is very hard to beat.
+So the launcher keeps two numbers and shows them on its first screen: **Creator** (his, fixed) and **You** (your
+best score in any mode, kept by the port). Your best is recorded even when it is below his, so you can watch
+it climb; when you pass him, the game itself starts showing your score as its high score, as it always did.
+
+*Options > Reset high scores* clears your best and puts the game's high score back to the creator's, so there is
+a score to beat again. Only Player 1's score counts as yours; the computer opponent's never does.
 
 ## The computer opponent
 
@@ -68,13 +80,14 @@ Everything in the game folder is the author's original, byte for byte, except th
 | File | What it is |
 |---|---|
 | `altitude.dcb` | The author's `altitude.prg`, compiled for BennuGD (the original compiled file is for Fenix, which does not run here). The script text is unchanged; see `source/` |
-| `bgdi.mipsel` | The runtime: BennuGD with SF3500 display, audio and input, tracker-music playback, and the computer opponent |
+| `bgdi.mipsel` | The runtime: BennuGD with SF3500 display, audio and input, tracker-music playback, the computer opponent, and the tracker of your best score |
 | `launcher.dcb`, `launcher.prg`, `ui/` | The launcher (its source and fonts) |
 | `run.sh`, `boxart.png` | The start script and the box art |
-| `options.cfg`, `log.txt` | Created when you run it: your settings, and a log of the last session |
+| `options.cfg`, `score-player.dat`, `log.txt` | Created when you run it: your settings, your best score, and a log of the last session |
 
 Unchanged originals: `altitude.fpg` (graphics), `alt1.mod`, `alt2.mod` (music), the `.wav` sounds,
-`score.dat` (starts with the author's own high score, then keeps yours) and `Readme-altitude.txt`
+`score.dat` (it starts as the author's own high score; the game replaces it when it is beaten and
+*Reset high scores* puts it back), `score-creator.dat` (an untouched copy of it) and `Readme-altitude.txt`
 (the author's readme).
 
 `source/` holds the source: the author's `altitude.prg` unmodified, and `make-bennu-prg.sh`, the only step

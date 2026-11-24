@@ -991,3 +991,6 @@ char * __bgdexport( mod_grproc, modules_dependency )[] =
 
 /* SF3500: computer opponent for Altitude (see sf3500_bot.inc) */
 #include "sf3500_bot.inc"
+
+/* SF3500: the player's own best score (see sf3500_score.inc) */
+#include "sf3500_score.inc"

@@ -12,7 +12,7 @@ LEFT, RIGHT, BOTTOM = 34, 598, 438     # inside the body panel (20..620 less its
 bad = 0
 MAIN_LINES = {"Altitude by Daniel Imerion Eriksson", "Up/Down: choose     A: confirm"}
 MAIN_LO, MAIN_HI = 118, 522      # inside the main screen bottom panel (110..530)
-extra = [(586, 101, 2, "<  Original shape  >", "f_y"), (586, 101, 2, "<  Fill screen  >", "f_y"), (586, 205, 2, "<  Normal  >", "f_y"), (586, 205, 2, "<  Hard  >", "f_y")]
+extra = [(586, 95, 2, "<  Original shape  >", "f_y"), (586, 95, 2, "<  Fill screen  >", "f_y"), (586, 183, 2, "<  Normal  >", "f_y"), (586, 183, 2, "<  Hard  >", "f_y"), (586, 227, 2, "Press A to confirm", "f_y")]
 rows = [(int(m[0]), int(m[1]), int(m[2]), m[3], m[4]) for m in
         re.findall(r'label\((\d+),\s*(\d+),\s*(\d),\s*"([^"]*)",\s*(f_\w+)\)', open(prg).read())] + extra
 for x, y, al, text, fn in rows:

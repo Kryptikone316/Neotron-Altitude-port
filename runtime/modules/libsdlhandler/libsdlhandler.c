@@ -42,6 +42,10 @@ extern int SDL_SendKeyboardKey(Uint8 state, SDL_Scancode scancode);
 /* Computer opponent for Altitude (modules/mod_grproc/sf3500_bot.inc). */
 extern int sf3500_bot_tick( int level, int * z, int * x, int * alt );
 
+/* The player's own best score (modules/mod_grproc/sf3500_score.inc). */
+extern void sf3500_score_tick( void );
+extern void sf3500_score_flush( void );
+
 /* SF3500_KEYSCRIPT="30:R,34:E,..." presses a key for three frames when the frame counter reaches
  * the number (L R U D = d-pad, E = Enter, Z X = letters). Only for headless tests. */
 typedef struct { int frame; SDL_Scancode sc; } KeyStep;
@@ -183,6 +187,7 @@ static void  dump_new_events()
                 bot_level = !e ? 0 : !strcmp( e, "easy" ) ? 1 : !strcmp( e, "normal" ) ? 2 : !strcmp( e, "hard" ) ? 3 : 0;
             }
             hook_frame++;
+            sf3500_score_tick();
             sf3500_keyscript( hook_frame );
             if ( bot_level > 0 )
             {
@@ -204,6 +209,7 @@ static void  dump_new_events()
          * explicit call here too - SDL_Quit() no longer reaches it via
          * CloseDevice since the dummy driver is forced. */
         if ((jk_bits & (1u << JK_SELECT)) && (jk_bits & (1u << JK_START))) {
+            sf3500_score_flush();
             hwaudio_deinit();
             hwdisp_deinit();
             SDL_Quit();
@@ -228,6 +234,7 @@ void __bgdexport( libsdlhandler, module_finalize )()
     /* Normal exits (a script's exit(), end of program) must release the audio hardware too:
      * the launcher hands over to the game as a second process right after this one ends.
      * Safe to call when audio was never started or is already stopped. */
+    sf3500_score_flush();
     hwaudio_deinit();
 }
 

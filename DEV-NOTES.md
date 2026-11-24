@@ -70,6 +70,23 @@ launcher, game, launcher; anything other than `play` leaves for the front-end.
 * The engine's built-in 8x8 font on translucent panels was nearly illegible on the device; that is why this
   exists.
 
+## High scores
+
+The game keeps a single high score in `score.dat` (one 32-bit little-endian integer, `load()`/`save()` of a
+global) and replaces it only with a higher one, at the end of a run. It also saves **Player 2's** score if that
+beats it, so a good computer-opponent run could become the game's high score. It ships with the author's
+33781, which is far above what a casual player reaches, so nothing below it is ever recorded.
+
+* `runtime/modules/mod_grproc/sf3500_score.inc` follows `Player1Score` (looked up by name, like the opponent's
+  variables, so it does nothing in a program without it, such as the launcher) every frame, and writes the
+  highest value seen to `score-player.dat` in the same format. It writes about every two seconds while a new best
+  is pending, and on every exit path. Best over time, not at the end of a run: the game resets the score at
+  each new life in Arcade, and the final one may be lower than an earlier life's.
+* The launcher shows `score-creator.dat` (a shipped, untouched copy of the author's `score.dat`) and
+  `score-player.dat` on its first screen. *Reset high scores* (a two-press action) saves the creator's score into
+  `score.dat` and zero into `score-player.dat`. The launcher's `selftest` argument exercises this and checks that
+  `score.dat` comes back byte-identical.
+
 ## The computer opponent (`runtime/modules/mod_grproc/sf3500_bot.inc`)
 
 Player 2 in the script reads only the Z, X and Alt keys and a few globals, so a runtime-side bot can fly it

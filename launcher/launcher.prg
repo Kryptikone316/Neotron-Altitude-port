@@ -47,7 +47,9 @@ global
     int opt_fill  = 0;          // 0 = original 4:3 shape, 1 = fill the screen
     int opt_music = 1;
     int opt_bot   = 0;          // computer opponent: 0 off, 1 easy, 2 normal, 3 hard
-    int high_score = 0;
+    int creator_best = 0;       // the author's high score, shipped in score-creator.dat
+    int player_best = 0;        // the player's own best, kept by the runtime in score-player.dat
+    int reset_stage = 0;        // Options: 0 idle, 1 waiting for the confirming press, 2 done
     int cur_screen = 0;
     int sel = 0;
     int help_page = 0;
@@ -73,7 +75,8 @@ begin
     menu_item[3] = "Exit";
 
     load_cfg();
-    load("score.dat", high_score);
+    if (file_exists("score-creator.dat")) load("score-creator.dat", creator_best); else load("score.dat", creator_best); end
+    if (file_exists("score-player.dat")) load("score-player.dat", player_best); end
 
     fpg = load_fpg("altitude.fpg");
     f_head   = fnt_load("ui/head.fnt");
@@ -135,8 +138,8 @@ end
 
 function handle_options()
 begin
-    if (e_up)   sel = (sel + 3) % 4; dirty = 1; end
-    if (e_down) sel = (sel + 1) % 4; dirty = 1; end
+    if (e_up)   sel = (sel + 4) % 5; reset_stage = 0; dirty = 1; end
+    if (e_down) sel = (sel + 1) % 5; reset_stage = 0; dirty = 1; end
     if (e_left or e_right or e_enter)
         if (sel == 0)
             opt_fill = 1 - opt_fill;
@@ -158,13 +161,33 @@ begin
             dirty = 1;
         end
         if (sel == 3 and e_enter)
+            // two presses: the first arms it, the second does it
+            if (reset_stage == 1)
+                reset_scores();
+                reset_stage = 2;
+            else
+                reset_stage = 1;
+            end
+            click();
+            dirty = 1;
+        end
+        if (sel == 4 and e_enter)
             click();
             cur_screen = SCR_MAIN; sel = 1; dirty = 1;
         end
     end
     if (e_esc)
+        reset_stage = 0;
         cur_screen = SCR_MAIN; sel = 1; dirty = 1;
     end
+end
+
+// The author's score goes back into the game's own high-score file and the player's best is cleared.
+function reset_scores()
+begin
+    save("score.dat", creator_best);
+    player_best = 0;
+    save("score-player.dat", player_best);
 end
 
 function handle_help()
@@ -326,6 +349,7 @@ function draw_main()
 private
     int i;
     int cy;
+    string v;
 begin
     for (i = 0; i < 4; i++)
         cy = 172 + i * 58;
@@ -338,7 +362,8 @@ begin
         end
     end
     panel(110, 404, 530, 474);
-    label(320, 402, 1, "High score: " + itoa(high_score), f_r);
+    if (player_best > 0) v = itoa(player_best); else v = "-"; end
+    label(320, 402, 1, "Creator: " + itoa(creator_best) + "     You: " + v, f_r);
     label(320, 428, 1, "Altitude by Daniel Imerion Eriksson", f_g);
     label(320, 449, 1, "Up/Down: choose     A: confirm", f_g);
 end
@@ -351,40 +376,50 @@ private
 begin
     heading("Options");
     body_panel();
-    for (i = 0; i < 4; i++)
-        cy = 118 + i * 52;
-        if (i == sel) select_frame(36, cy - 23, 604, cy + 23); end
+    for (i = 0; i < 5; i++)
+        cy = 112 + i * 44;
+        if (i == sel) select_frame(36, cy - 21, 604, cy + 21); end
     end
     if (opt_fill == 1) v = "Fill screen"; else v = "Original shape"; end
-    label(54, 118 - 17, 0, "Screen", f_w);
-    label(586, 118 - 17, 2, "<  " + v + "  >", f_y);
+    label(54, 112 - 17, 0, "Screen", f_w);
+    label(586, 112 - 17, 2, "<  " + v + "  >", f_y);
     if (opt_music == 1) v = "On"; else v = "Off"; end
-    label(54, 170 - 17, 0, "Menu music", f_w);
-    label(586, 170 - 17, 2, "<  " + v + "  >", f_y);
+    label(54, 156 - 17, 0, "Menu music", f_w);
+    label(586, 156 - 17, 2, "<  " + v + "  >", f_y);
     if (opt_bot == 0) v = "Off"; end
     if (opt_bot == 1) v = "Easy"; end
     if (opt_bot == 2) v = "Normal"; end
     if (opt_bot == 3) v = "Hard"; end
-    label(54, 222 - 17, 0, "Computer opponent", f_w);
-    label(586, 222 - 17, 2, "<  " + v + "  >", f_y);
-    label(54, 274 - 17, 0, "Back", f_w);
+    label(54, 200 - 17, 0, "Computer opponent", f_w);
+    label(586, 200 - 17, 2, "<  " + v + "  >", f_y);
+    label(54, 244 - 17, 0, "Reset high scores", f_w);
+    if (reset_stage == 0) v = "Press A"; end
+    if (reset_stage == 1) v = "Press A to confirm"; end
+    if (reset_stage == 2) v = "Done"; end
+    label(586, 244 - 17, 2, v, f_y);
+    label(54, 288 - 17, 0, "Back", f_w);
 
     // help for the selected row
     if (sel == 0)
-        label(40, 318, 0, "Original shape keeps the game's 4:3 picture", f_g);
-        label(40, 343, 0, "with black bars at the sides. Fill stretches it", f_g);
-        label(40, 368, 0, "across the whole screen. Applies when the", f_g);
-        label(40, 393, 0, "game starts.", f_g);
+        label(40, 330, 0, "Original shape keeps the game's 4:3 picture", f_g);
+        label(40, 355, 0, "with black bars at the sides. Fill stretches it", f_g);
+        label(40, 380, 0, "across the whole screen. Applies when the", f_g);
+        label(40, 405, 0, "game starts.", f_g);
     end
     if (sel == 1)
-        label(40, 318, 0, "Plays the menu music while you are in this", f_g);
-        label(40, 343, 0, "launcher. The game has its own sound menu.", f_g);
+        label(40, 330, 0, "Plays the menu music while you are in this", f_g);
+        label(40, 355, 0, "launcher. The game has its own sound menu.", f_g);
     end
     if (sel == 2)
-        label(40, 318, 0, "A computer pilot flies Player 2 in 2P Battle", f_g);
-        label(40, 343, 0, "and 2P Arcade, so you can race it. Easy makes", f_g);
-        label(40, 368, 0, "mistakes, Hard rarely does. Off leaves Player 2", f_g);
-        label(40, 393, 0, "idle. Applies when the game starts.", f_g);
+        label(40, 330, 0, "A computer pilot flies Player 2 in 2P Battle", f_g);
+        label(40, 355, 0, "and 2P Arcade, so you can race it. Easy makes", f_g);
+        label(40, 380, 0, "mistakes, Hard rarely does. Off leaves Player 2", f_g);
+        label(40, 405, 0, "idle. Applies when the game starts.", f_g);
+    end
+    if (sel == 3)
+        label(40, 330, 0, "Clears your best score and puts the game's high", f_g);
+        label(40, 355, 0, "score back to the creator's, so there is a score", f_g);
+        label(40, 380, 0, "to beat again. This cannot be undone.", f_g);
     end
     footer("Up/Down: choose     Left/Right: change     B: back");
 end
@@ -481,7 +516,7 @@ begin
     label(64, 344, 0, "computer pilot as Player 2.", f_w);
 
     label(40, 382, 0, "High score", f_y);
-    label(64, 408, 0, "Beat it and it is saved for you.", f_w);
+    label(64, 408, 0, "The menu shows yours and the creator's.", f_w);
 end
 
 function help_tips()
@@ -522,11 +557,15 @@ function run_shots()
 private
     int p;
 begin
+    player_best = 12480;
     cur_screen = SCR_MAIN; sel = 0; draw_screen(); shot();
     sel = 2; draw_screen(); shot();
     cur_screen = SCR_OPTIONS; sel = 0; draw_screen(); shot();
     sel = 1; draw_screen(); shot();
     sel = 2; opt_bot = 2; draw_screen(); shot();
+    sel = 3; reset_stage = 0; draw_screen(); shot();
+    reset_stage = 1; draw_screen(); shot();
+    reset_stage = 2; draw_screen(); shot();
     cur_screen = SCR_HELP;
     for (p = 0; p < HELP_PAGES; p++)
         help_page = p;
@@ -535,17 +574,27 @@ begin
     end
 end
 
-// Settings round trip and hand-off check, no keys needed: argument "selftest".
+// Settings round trip, score reset and hand-off check, no keys needed: argument "selftest".
 function run_selftest()
 private
     int f;
+    int g_score;
+    int g_player;
 begin
     opt_fill = 1; opt_music = 0; opt_bot = 2;
     save_cfg();
     opt_fill = 0; opt_music = 1; opt_bot = 0;
     load_cfg();
+    // pretend the player beat the creator, then reset: score.dat must hold the creator's score again
+    g_score = creator_best + 9000;
+    save("score.dat", g_score);
+    player_best = creator_best + 9000;
+    save("score-player.dat", player_best);
+    reset_scores();
+    load("score.dat", g_score);
+    load("score-player.dat", g_player);
     f = fopen("selftest.txt", O_WRITE);
-    fputs(f, "fill=" + itoa(opt_fill) + " music=" + itoa(opt_music) + " bot=" + itoa(opt_bot) + " score=" + itoa(high_score));
+    fputs(f, "fill=" + itoa(opt_fill) + " music=" + itoa(opt_music) + " bot=" + itoa(opt_bot) + " creator=" + itoa(creator_best) + " score.dat_after_reset=" + itoa(g_score) + " player_after_reset=" + itoa(g_player));
     fclose(f);
     finish("play");
 end

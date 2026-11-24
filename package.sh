@@ -12,6 +12,8 @@ rm -rf "$OUT"; P="$OUT/neotron-altitude"; mkdir -p "$P/licenses" "$P/source"
 
 # the game, exactly as the author published it (the script is replaced by its BennuGD bytecode, and shipped under source/)
 for f in "$HERE"/game/*.wav "$HERE"/game/*.mod "$HERE"/game/altitude.fpg "$HERE"/game/score.dat; do cp "$f" "$P/"; done
+# a second, untouched copy of the author's high score: the launcher shows it and restores it on "Reset high scores"
+cp "$HERE/game/score.dat" "$P/score-creator.dat"
 cp "$HERE/game/Readme.txt" "$P/Readme-altitude.txt"
 # the port
 cp "$BUILD/bgdi.mipsel" "$BUILD/altitude.dcb" "$BUILD/launcher.dcb" "$P/"

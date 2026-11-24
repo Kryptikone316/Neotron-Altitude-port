@@ -20,7 +20,7 @@ esac
 "$PY" -I - "$W" "$SHOTS" <<'P'
 import glob, sys
 from PIL import Image
-names = ["main", "main_sel", "options", "options_music", "options_bot", "help1", "help2", "help3", "help4", "help5"]
+names = ["main", "main_sel", "options", "options_music", "options_bot", "options_reset", "options_reset_armed", "options_reset_done", "help1", "help2", "help3", "help4", "help5"]
 for i, f in enumerate(sorted(glob.glob(sys.argv[1] + "/shot_*.ppm"))):
     Image.open(f).save(f"{sys.argv[2]}/{names[i]}.png")
 print(len(glob.glob(sys.argv[2] + "/*.png")), "screens in", sys.argv[2])
