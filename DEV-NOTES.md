@@ -39,6 +39,17 @@ The runtime is BennuGD (SDL2 flavour) with these changes. Everything is under `r
 * **Tracker music**: the game's two songs are `.mod` files. SDL2_mixer is built with libxmp-lite for them
   (`runtime/sf3500/sdl2-mixer-2.6.3-xmp-lite.patch`). libmodplug was tried first and faulted on an
   unaligned access in its loader.
+* **Pause** (`libsdlhandler.c`, `mod_grproc/sf3500_pause.inc`, `librender/g_screen.c`): the input hook runs once per
+  frame, so not returning from it freezes the game. A Start press (a rising edge of the pad's Start bit, not the
+  Enter key: A also sends Enter) pauses when `sf3500_pause_allowed()` says a ship is flying: Player 1's process is
+  running, `Player1Alive` is 1, no `Message` process exists (those banners wait for Start), and it has been flying
+  for more than 12 frames, so the Start that confirmed the menu cannot pause the level it started. While paused the
+  loop holds the music and every channel (`sf3500_audio_pause` in mod_sound.c), shows the engine's screen surface
+  at half brightness with a 5x7-font label, polls the pad every 50 ms, and resumes on the next Start press;
+  Select + Start still quits. On resume the frame clock is restarted (`sf3500_resync_frame_clock`), otherwise the
+  engine would try to catch up the stopped time. The level's state is untouched: a run with a pause in it ends with
+  the same score as one without. `SF3500_KEYSCRIPT` code `P` is a scripted Start press and
+  `SF3500_PAUSE_TEST_ITERS=n` resumes by itself after n polls, for headless tests.
 * **Test hooks** (cost nothing unless their variable is set): `SF3500_KEYSCRIPT="60:R,100:E,..."` presses
   keys at frame numbers; `SF3500_SHOT_PREFIX=p` writes the next presented frame to `p_NNN.ppm` whenever a file
   `p.trigger` exists; the computer opponent has `SF3500_BOT_DEBUG`, `_VALIDATE`, `_TRACE` and friends.
@@ -127,6 +138,11 @@ Difficulty (`bot_levels[]` in the file): Easy looks 18 frames ahead and replans 
 slip rate; Normal 26 frames, every second frame, 2%; Hard 36 frames, every frame, no slips and a stronger
 pull to crystals. A governor lengthens the replan interval if the moving average of planning time passes
 12 ms. A `bot: perf` line is logged about every 250 frames and a `bot: RESULT` line each time its ship ends.
+
+Under emulation the planner's speed changed by about 30% between builds that differ only in unrelated code (the
+layout of the binary, probably how the emulator's translation cache fills). Near the governor's 12 ms limit that
+changed the outcome of runs. `tools/bot-run.sh` therefore sets `SF3500_BOT_NOGOVERNOR=1`, which keeps the replan
+interval fixed, and the results below are with that. Do not take emulated timings as device timings.
 
 Results under emulation (2P Battle, Player 1 idle), completed levels out of 7:
 

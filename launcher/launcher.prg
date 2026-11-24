@@ -473,20 +473,23 @@ function help_controls()
 begin
     heading("Controls");
     body_panel();
-    label(40, 90,  0, "A  or  D-pad Up", f_y);
-    label(64, 118, 0, "Engine: fly up. Let go and you fall.", f_w);
+    label(40, 94,  0, "A  or  D-pad Up", f_y);
+    label(64, 120, 0, "Engine: fly up. Let go and you fall.", f_w);
 
-    label(40, 154, 0, "B  or  D-pad Right", f_y);
-    label(64, 182, 0, "Thruster: push forward (yellow crystal).", f_w);
+    label(40, 152, 0, "B  or  D-pad Right", f_y);
+    label(64, 178, 0, "Thruster: push forward (yellow crystal).", f_w);
 
-    label(40, 218, 0, "Y  or  D-pad Down", f_y);
-    label(64, 246, 0, "Push down (green or blue crystal).", f_w);
+    label(40, 210, 0, "Y  or  D-pad Down", f_y);
+    label(64, 236, 0, "Push down (green or blue crystal).", f_w);
 
-    label(40, 282, 0, "D-pad Left/Right, then A or Start", f_y);
-    label(64, 310, 0, "Choose and confirm in menus.", f_w);
+    label(40, 268, 0, "Start (while flying)", f_y);
+    label(64, 294, 0, "Pause. Press Start again to carry on.", f_w);
 
-    label(40, 346, 0, "Select + Start", f_y);
-    label(64, 374, 0, "Quit the game and return to this menu.", f_w);
+    label(40, 326, 0, "D-pad Left/Right, then A or Start", f_y);
+    label(64, 352, 0, "Choose and confirm in menus.", f_w);
+
+    label(40, 384, 0, "Select + Start", f_y);
+    label(64, 410, 0, "Quit the game and return to this menu.", f_w);
 end
 
 function help_powerups()

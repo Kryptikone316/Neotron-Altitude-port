@@ -9,13 +9,14 @@ games, which have mostly disappeared from the web.
 
 ## What is in this port
 
-The game itself is the author's, unchanged. The port adds three things around it, none of which
+The game itself is the author's, unchanged. The port adds four things around it, none of which
 alter the game's files:
 
 * **A runtime** for the SF3500's MIPS processor (`bgdi.mipsel`). The game was written for the Fenix
   engine, so it is run with BennuGD, a descendant of Fenix.
 * **A launcher** that starts first: Play Game, Options, How to Play, Exit.
 * **A computer opponent** (a mod) that flies Player 2 in the two-player modes.
+* **A pause**: Start stops a level you are flying, and Start again carries on. The game has none of its own.
 
 ## Controls
 
@@ -25,8 +26,13 @@ alter the game's files:
 | B | thruster, forward (needs the yellow crystal) | back |
 | Y | push down (needs the green or blue crystal) | |
 | D-pad | up, down, left, right | choose |
-| Start | confirm | confirm |
+| Start | pause and resume while flying; confirm in the game's menus | confirm |
 | Select + Start | quit to the launcher | quit to the front-end |
+
+**Pause:** press Start while you are flying. The game stands still, the music and sounds hold, and the last
+frame stays on screen with PAUSED over it; press Start again to carry on from the same moment. It works only in
+flight (not on the menus, or on a level-complete or game-over banner, where Start confirms as before), and
+Select + Start still quits from the pause screen.
 
 Player 2's keys are not mapped: the handheld has one set of controls. Use the computer opponent
 (below) for the two-player modes.

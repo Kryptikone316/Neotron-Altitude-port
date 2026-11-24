@@ -44,6 +44,10 @@ extern int sf3500_bot_tick( int level, int * z, int * x, int * alt );
 
 /* The player's own best score (modules/mod_grproc/sf3500_score.inc). */
 extern void sf3500_score_tick( void );
+extern int  sf3500_pause_allowed( void );
+extern void sf3500_present_paused( void );
+extern void sf3500_resync_frame_clock( void );
+extern void sf3500_audio_pause( int on );
 extern void sf3500_score_flush( void );
 
 /* SF3500_KEYSCRIPT="30:R,34:E,..." presses a key for three frames when the frame counter reaches
@@ -51,6 +55,7 @@ extern void sf3500_score_flush( void );
 typedef struct { int frame; SDL_Scancode sc; } KeyStep;
 static KeyStep ks_steps[128];
 static int ks_count = -1;
+static int ks_fake_start = 0;          /* a scripted Start press (code P), for testing the pause */
 
 static void sf3500_keyscript( int frame )
 {
@@ -73,6 +78,7 @@ static void sf3500_keyscript( int frame )
                 case 'E': sc = SDL_SCANCODE_RETURN; break;
                 case 'Z': sc = SDL_SCANCODE_Z; break;
                 case 'X': sc = SDL_SCANCODE_X; break;
+                case 'P': sc = SDL_SCANCODE_F24; break;     /* not a key: a Start press */
                 default: break;
             }
             if ( *e ) e++;
@@ -81,7 +87,10 @@ static void sf3500_keyscript( int frame )
         }
     }
     for ( i = 0; i < ks_count; i++ )
-        if ( frame >= ks_steps[i].frame && frame < ks_steps[i].frame + 3 ) SDL_SendKeyboardKey( SDL_PRESSED, ks_steps[i].sc );
+        if ( frame >= ks_steps[i].frame && frame < ks_steps[i].frame + 3 )
+        {
+            if ( ks_steps[i].sc == SDL_SCANCODE_F24 ) ks_fake_start = 1; else SDL_SendKeyboardKey( SDL_PRESSED, ks_steps[i].sc );
+        }
 }
 
 /* Declared inside our own SDL2 build (src/events/sf3500/SDL_sf3500input.h)
@@ -91,6 +100,45 @@ extern unsigned int SF3500_PumpJoykeyKeyboard(void);
 
 /* ----------------------------------------------------------------- */
 /* Public functions                                                  */
+
+/* Standing SF3500 exit combo (Select + Start), also honoured while paused. */
+static void sf3500_quit_now( void )
+{
+    sf3500_score_flush();
+    hwaudio_deinit();
+    hwdisp_deinit();
+    SDL_Quit();
+    exit( 0 );
+}
+
+#define SF3500_START_DOWN( bits ) ( ( ( bits ) & ( 1u << JK_START ) ) != 0 )
+
+/* Pause: the game stands still (this hook is called once per frame, so not returning stops it), the music
+ * and sounds are held, and the last frame is shown dimmed with a label. Start resumes. The test hook
+ * SF3500_PAUSE_TEST_ITERS=n resumes by itself after n polls, so a headless run can pause without a pad. */
+static void sf3500_pause_loop( void )
+{
+    static int test_iters = -2;
+    int start_was_down = 1, polls = 0;
+    if ( test_iters == -2 ) { const char * e = getenv( "SF3500_PAUSE_TEST_ITERS" ); test_iters = e ? atoi( e ) : -1; }
+    fprintf( stderr, "pause: on\n" );
+    sf3500_audio_pause( 1 );
+    for ( ;; )
+    {
+        unsigned int bits;
+        if ( ( polls % 10 ) == 0 ) sf3500_present_paused();            /* now, and about twice a second after */
+        SDL_Delay( 50 );
+        polls++;
+        bits = SF3500_PumpJoykeyKeyboard();
+        if ( ( bits & ( 1u << JK_SELECT ) ) && SF3500_START_DOWN( bits ) ) sf3500_quit_now();
+        if ( SF3500_START_DOWN( bits ) && !start_was_down ) break;
+        start_was_down = SF3500_START_DOWN( bits );
+        if ( test_iters >= 0 && polls >= test_iters ) break;
+    }
+    sf3500_audio_pause( 0 );
+    sf3500_resync_frame_clock();
+    fprintf( stderr, "pause: off\n" );
+}
 
 static void  dump_new_events()
 {
@@ -186,9 +234,17 @@ static void  dump_new_events()
                 const char * e = getenv( "SF3500_BOT" );
                 bot_level = !e ? 0 : !strcmp( e, "easy" ) ? 1 : !strcmp( e, "normal" ) ? 2 : !strcmp( e, "hard" ) ? 3 : 0;
             }
+            static int start_was_down = 0;
+            int start_now, can_pause;
             hook_frame++;
             sf3500_score_tick();
+            ks_fake_start = 0;
             sf3500_keyscript( hook_frame );
+            start_now = SF3500_START_DOWN( jk_bits ) || ks_fake_start;
+            can_pause = sf3500_pause_allowed();                /* every frame: it counts how long a ship has been flying */
+            if ( start_now && !start_was_down && !( jk_bits & ( 1u << JK_SELECT ) ) && can_pause )
+                sf3500_pause_loop();
+            start_was_down = start_now;
             if ( bot_level > 0 )
             {
                 active = sf3500_bot_tick( bot_level, &bz, &bx, &balt );
@@ -208,13 +264,7 @@ static void  dump_new_events()
          * device layer, see mod_sound.c), so hwaudio_deinit() needs an
          * explicit call here too - SDL_Quit() no longer reaches it via
          * CloseDevice since the dummy driver is forced. */
-        if ((jk_bits & (1u << JK_SELECT)) && (jk_bits & (1u << JK_START))) {
-            sf3500_score_flush();
-            hwaudio_deinit();
-            hwdisp_deinit();
-            SDL_Quit();
-            exit(0);
-        }
+        if ((jk_bits & (1u << JK_SELECT)) && (jk_bits & (1u << JK_START))) sf3500_quit_now();
     }
     SDL_PumpEvents();
     SDL_JoystickUpdate();

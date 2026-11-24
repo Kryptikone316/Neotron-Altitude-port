@@ -24,6 +24,7 @@ None of this alters the game's files.
 * **A launcher** that comes first: Play Game, Options, How to Play, Exit.
 * **A computer opponent** that can fly Player 2 in the two-player modes, since the handheld has one set
   of controls.
+* **A pause**: Start stops a level in flight, and Start again carries on. The game has no pause.
 
 ## Install
 

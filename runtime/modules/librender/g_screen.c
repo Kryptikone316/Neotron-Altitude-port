@@ -184,6 +184,69 @@ static void sf3500_dump_if_requested( const unsigned short * src, int w, int h, 
 
 static int screen_locked = 0 ;
 
+/* SF3500 pause: the pause screen shows the engine's screen surface (it still holds the last frame while the game
+ * stands still) dimmed, with a label on top. Nothing is recorded in the per-frame present path: adding even two
+ * stores there made the computer opponent's planning about 30% slower under emulation. */
+static int last_present_w = 0, last_present_h = 0;
+static unsigned short * pause_buf = NULL;
+static int pause_buf_pixels = 0;
+
+/* 5x7 letters for the pause label (rows top to bottom, bit 4 is the left column) */
+static const struct { char c; unsigned char r[7]; } pause_font[] = {
+    { 'A', { 14, 17, 17, 31, 17, 17, 17 } }, { 'D', { 30, 17, 17, 17, 17, 17, 30 } },
+    { 'E', { 31, 16, 16, 30, 16, 16, 31 } }, { 'M', { 17, 27, 21, 21, 17, 17, 17 } },
+    { 'O', { 14, 17, 17, 17, 17, 17, 14 } }, { 'P', { 30, 17, 17, 30, 16, 16, 16 } },
+    { 'R', { 30, 17, 17, 30, 20, 18, 17 } }, { 'S', { 15, 16, 16, 14, 1, 1, 30 } },
+    { 'T', { 31, 4, 4, 4, 4, 4, 4 } },       { 'U', { 17, 17, 17, 17, 17, 17, 14 } },
+    { 0, { 0 } }
+};
+
+static void pause_text( int cx, int y, int scale, const char * text, unsigned short colour )
+{
+    int len = ( int ) strlen( text ), x0 = cx - ( len * 6 * scale - scale ) / 2, i, r, c, k, dx, dy;
+    for ( i = 0; i < len; i++ )
+        for ( k = 0; pause_font[k].c; k++ )
+            if ( pause_font[k].c == text[i] )
+                for ( r = 0; r < 7; r++ )
+                    for ( c = 0; c < 5; c++ )
+                        if ( pause_font[k].r[r] & ( 16 >> c ) )
+                            for ( dy = 0; dy < scale; dy++ )
+                                for ( dx = 0; dx < scale; dx++ )
+                                {
+                                    int px = x0 + ( i * 6 + c ) * scale + dx, py = y + r * scale + dy;
+                                    if ( px >= 0 && px < last_present_w && py >= 0 && py < last_present_h )
+                                        pause_buf[py * last_present_w + px] = colour;
+                                }
+}
+
+/* Shows the last frame dimmed with PAUSED over it. Called repeatedly while the game is stopped. */
+void sf3500_present_paused( void )
+{
+    int w, h, x, y, s;
+    if ( !screen || !screen->pixels ) return;
+    w = last_present_w = screen->w;
+    h = last_present_h = screen->h;
+    if ( w * h > pause_buf_pixels )
+    {
+        free( pause_buf );
+        pause_buf = ( unsigned short * ) malloc( w * h * sizeof( unsigned short ) );
+        pause_buf_pixels = pause_buf ? w * h : 0;
+    }
+    if ( !pause_buf ) return;
+    SDL_ConvertPixels( w, h, screen->format->format, screen->pixels, screen->pitch,
+                       SDL_PIXELFORMAT_RGB565, pause_buf, w * 2 );
+    for ( y = 0; y < h; y++ )
+        for ( x = 0; x < w; x++ )
+            pause_buf[y * w + x] = ( unsigned short ) ( ( pause_buf[y * w + x] >> 1 ) & 0x7BEF );   /* half as bright */
+    s = w >= 300 ? 6 : 4;
+    pause_text( w / 2 + s, h / 2 - 7 * s + s, s, "PAUSED", 0x0000 );                     /* shadow */
+    pause_text( w / 2, h / 2 - 7 * s, s, "PAUSED", 0xFFE0 );
+    s = w >= 300 ? 2 : 1;
+    pause_text( w / 2, h / 2 + 10 * s, s, "PRESS START TO RESUME", 0xFFFF );
+    sf3500_dump_if_requested( pause_buf, w, h, w * 2 );
+    hwdisp_present( pause_buf, w, h, w * 2 );
+}
+
 /* SF3500 hw video output - converts whatever bpp the game script picked
  * into the RGB565 hwdisp_present() needs, growing the scratch buffer
  * lazily. Skips the conversion entirely when screen is already RGB565

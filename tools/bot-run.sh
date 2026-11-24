@@ -4,6 +4,7 @@
 # result line. Several can run in parallel (each has its own folder under $RUNS). Needs a finished build_sf3500.sh.
 #   tools/bot-run.sh <easy|normal|hard> <level 1-7> <seconds>
 # Environment: SF3500_TC and QEMU as for build_sf3500.sh; BUILD (default ./build-sf3500); RUNS (default ./runs)
+#   (the timing governor is switched off so results do not depend on host speed)
 #   BOT_AVOID_RED=1  the bot ignores red crystals (as if a human took the fire shield)
 #   BOT_DEBUG=1      print the bot's diagnostics into the run's run.log (default: production logging only)
 #   BOT_VALIDATE=1   compare the bot's collision test with the engine's (with BOT_DEBUG=1)
@@ -21,7 +22,7 @@ cp "$HERE/game/score.dat" "$D/"
 KS="60:R,100:R,140:E"; f=200
 for ((k=1;k<GL;k++)); do KS="$KS,$f:R"; f=$((f+35)); done
 KS="$KS,$((f+40)):E,$((f+100)):E"
-ENVV="SDL_AUDIODRIVER=dummy SDL_VIDEODRIVER=dummy VIDEO_DEPTH=16 SF3500_BOT=$LEVEL SF3500_KEYSCRIPT=$KS"
+ENVV="SDL_AUDIODRIVER=dummy SDL_VIDEODRIVER=dummy VIDEO_DEPTH=16 SF3500_BOT_NOGOVERNOR=1 SF3500_BOT=$LEVEL SF3500_KEYSCRIPT=$KS"
 [ -n "${BOT_DEBUG:-}" ]      && ENVV="$ENVV SF3500_BOT_DEBUG=1 SF3500_BOT_DEBUG_EVERY=50"
 [ -n "${BOT_VALIDATE:-}" ]   && ENVV="$ENVV SF3500_BOT_VALIDATE=1"
 [ -n "${BOT_AVOID_RED:-}" ]  && ENVV="$ENVV SF3500_BOT_AVOID_RED=1"

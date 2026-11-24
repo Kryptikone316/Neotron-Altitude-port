@@ -176,6 +176,7 @@ static int bot_first_frame = -1, bot_last_print = 0;
 /* CPU governor: if planning is slow on this device the bot re-plans less often rather than starving the game. */
 static unsigned bot_ema_us = 0;
 static int bot_extra_period = 0;
+static int bot_nogov = -1;
 static unsigned long bot_perf_sum = 0, bot_perf_n = 0;
 static unsigned bot_perf_worst = 0;
 static int bot_perf_last = 0;
@@ -946,7 +947,11 @@ int sf3500_bot_tick( int level, int * out_z, int * out_x, int * out_alt )
 
         plan_us = bot_now_us() - t0;
         bot_ema_us = ( bot_ema_us * 7 + plan_us ) / 8;
-        if ( bot_ema_us > 12000 && bot_extra_period < 3 ) bot_extra_period++;
+        /* SF3500_BOT_NOGOVERNOR=1 (tests only): never lengthen the replan interval, so a run does not depend on how
+         * fast the machine running the emulator happens to be at that moment. */
+        if ( bot_nogov < 0 ) bot_nogov = getenv( "SF3500_BOT_NOGOVERNOR" ) ? 1 : 0;
+        if ( bot_nogov ) { /* fixed interval */ }
+        else if ( bot_ema_us > 12000 && bot_extra_period < 3 ) bot_extra_period++;
         else if ( bot_ema_us < 5000 && bot_extra_period > 0 ) bot_extra_period--;
         bot_perf_sum += plan_us; bot_perf_n++;
         if ( plan_us > bot_perf_worst ) bot_perf_worst = plan_us;

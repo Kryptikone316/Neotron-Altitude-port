@@ -101,6 +101,13 @@ void gr_set_fps( int fps, int skip )
  *      None
  */
 
+/* SF3500 pause: after a long stop the frame clock would see a huge delay and try to catch up (skipped frames,
+ * fast movement). Zero start time makes the next frame start the count afresh. */
+void sf3500_resync_frame_clock( void )
+{
+    FPS_init_sync = 0;
+}
+
 void gr_wait_frame()
 {
     int frame_ticks ;

@@ -994,3 +994,6 @@ char * __bgdexport( mod_grproc, modules_dependency )[] =
 
 /* SF3500: the player's own best score (see sf3500_score.inc) */
 #include "sf3500_score.inc"
+
+/* SF3500: pause for the level being flown (see sf3500_pause.inc) */
+#include "sf3500_pause.inc"

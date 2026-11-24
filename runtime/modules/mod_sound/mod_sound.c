@@ -587,6 +587,14 @@ static int resume_song( void )
     return( 0 ) ;
 }
 
+/* SF3500 pause (see libsdlhandler.c): holds the music and every sound effect, and lets them go on from the same spot. */
+void sf3500_audio_pause( int on )
+{
+    if ( !audio_initialized ) return;
+    if ( on ) { Mix_PauseMusic(); Mix_Pause( -1 ); }
+    else      { Mix_ResumeMusic(); Mix_Resume( -1 ); }
+}
+
 /* --------------------------------------------------------------------------- */
 /*
  *  FUNCTION : is_playing_song
